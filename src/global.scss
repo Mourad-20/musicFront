@@ -1,0 +1,154 @@
+@import "@ionic/angular/css/core.css";
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+:root {
+  --spotify-green: #1DB954;
+  --spotify-green-dark: #1aa34a;
+  --spotify-black: #000000;
+  --spotify-dark: #121212;
+  --spotify-darker: #0a0a0a;
+  --spotify-gray: #181818;
+  --spotify-gray-light: #282828;
+  --spotify-gray-lighter: #3e3e3e;
+  --spotify-text: #ffffff;
+  --spotify-text-secondary: #b3b3b3;
+  --spotify-text-disabled: #535353;
+
+  --ion-background-color: var(--spotify-dark);
+  --ion-text-color: var(--spotify-text);
+  --ion-toolbar-background: var(--spotify-black);
+  --ion-tab-bar-background: var(--spotify-black);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--spotify-dark);
+  color: var(--spotify-text);
+  overflow-x: hidden;
+}
+
+ion-content {
+  --background: var(--spotify-dark);
+}
+
+ion-toolbar {
+  --background: transparent;
+  --color: var(--spotify-text);
+  --border-width: 0;
+}
+
+ion-tab-bar {
+  --background: var(--spotify-black);
+  --border: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  height: calc(56px + env(safe-area-inset-bottom));
+}
+
+ion-tab-button {
+  --color: var(--spotify-text-secondary);
+  --color-selected: var(--spotify-text);
+  font-weight: 500;
+  font-size: 11px;
+}
+
+.scrollable-horizontal {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  gap: 16px;
+  padding: 0 16px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  scrollbar-width: none;
+}
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-ellipsis-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-shadow {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.transition-all {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover, &:active {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
