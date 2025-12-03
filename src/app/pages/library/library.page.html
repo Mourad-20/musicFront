@@ -1,0 +1,73 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title class="page-title">
+      <app-icon-library [size]="28"></app-icon-library>
+      <span>Your Library</span>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="library-content fade-in">
+    <div class="filter-chips">
+      <div
+        class="chip"
+        [class.active]="selectedFilter === 'history'"
+        (click)="selectFilter('history')"
+      >
+        All
+      </div>
+      <div
+        class="chip"
+        [class.active]="selectedFilter === 'playlists'"
+        (click)="selectFilter('playlists')"
+      >
+        Playlists
+      </div>
+      <div
+        class="chip"
+        [class.active]="selectedFilter === 'artists'"
+        (click)="selectFilter('artists')"
+      >
+        Artists
+      </div>
+      <div
+        class="chip"
+        [class.active]="selectedFilter === 'albums'"
+        (click)="selectFilter('albums')"
+      >
+        Albums
+      </div>
+    </div>
+
+    <ng-container [ngSwitch]="selectedFilter">
+      <div *ngSwitchCase="'playlists'" class="library-grid playlists-grid">
+        <app-playlist-card
+          *ngFor="let playlist of playlists"
+          [playlist]="playlist"
+        >
+        </app-playlist-card>
+      </div>
+
+      <div *ngSwitchCase="'history'" class="library-grid history-grid">
+        <app-track-item *ngFor="let track of historiqueTraks" [track]="track">
+        </app-track-item>
+      </div>
+
+      <div *ngSwitchDefault>
+        <p>No content found.</p>
+      </div>
+    </ng-container>
+
+    <div class="spacer"></div>
+  </div>
+  <ion-infinite-scroll
+    (ionInfinite)="nextPage($event)"
+    *ngIf="this.historiqueTraks.length >= 6"
+  >
+    <ion-infinite-scroll-content class="infinite-scroll-white">
+      <ion-spinner name="bubbles" class="my-spinner"></ion-spinner>
+      <p class="custom-loading-text">Loading more data...</p>
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>

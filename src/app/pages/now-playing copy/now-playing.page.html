@@ -1,0 +1,74 @@
+<ion-header class="transparent-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="close()">
+        <ion-icon name="chevron-down"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button>
+        <app-icon-more-vertical [size]="24"></app-icon-more-vertical>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" *ngIf="currentTrack()">
+  <div class="now-playing-content fade-in">
+    <div class="cover-section">
+      <div class="cover-wrapper pulse">
+        <img [src]="" [alt]="currentTrack()!.title" class="cover" />
+      </div>
+    </div>
+
+    <div class="info-section">
+      <div class="track-info">
+        <h1 class="track-title">{{ currentTrack()!.title }}</h1>
+        <p class="track-artist"></p>
+      </div>
+      <button class="heart-btn" (click)="toggleFavorite()">
+        <app-icon-heart [size]="28" [filled]="isFavorite()"></app-icon-heart>
+      </button>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+        <div class="progress-thumb" [style.left.%]="progress()"></div>
+      </div>
+      <div class="time-labels">
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+
+    <div class="controls-section">
+      <div class="secondary-controls">
+        <button class="control-btn">
+          <app-icon-shuffle [size]="24"></app-icon-shuffle>
+        </button>
+      </div>
+
+      <div class="main-controls">
+        <button class="control-btn" (click)="previous()">
+          <app-icon-previous [size]="32"></app-icon-previous>
+        </button>
+
+        <button class="play-btn" (click)="togglePlay()">
+          <app-icon-pause *ngIf="isPlaying()" [size]="32"></app-icon-pause>
+          <app-icon-play *ngIf="!isPlaying()" [size]="32"></app-icon-play>
+        </button>
+
+        <button class="control-btn" (click)="next()">
+          <app-icon-next [size]="32"></app-icon-next>
+        </button>
+      </div>
+
+      <div class="secondary-controls">
+        <button class="control-btn">
+          <app-icon-repeat [size]="24"></app-icon-repeat>
+        </button>
+      </div>
+    </div>
+  </div>
+</ion-content>

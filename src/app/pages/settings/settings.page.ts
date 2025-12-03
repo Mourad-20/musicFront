@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { Component } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
 
 @Component({
-  selector: 'app-settings',
+  selector: "app-settings",
   standalone: true,
   imports: [CommonModule, IonicModule],
   template: `
@@ -36,21 +36,27 @@ import { IonicModule } from '@ionic/angular';
           <div class="setting-item">
             <div class="setting-info">
               <div class="setting-label">Crossfade</div>
-              <div class="setting-description">Seamless transitions between songs</div>
+              <div class="setting-description">
+                Seamless transitions between songs
+              </div>
             </div>
             <ion-toggle></ion-toggle>
           </div>
           <div class="setting-item">
             <div class="setting-info">
               <div class="setting-label">Gapless</div>
-              <div class="setting-description">Uninterrupted album playback</div>
+              <div class="setting-description">
+                Uninterrupted album playback
+              </div>
             </div>
             <ion-toggle [checked]="true"></ion-toggle>
           </div>
           <div class="setting-item">
             <div class="setting-info">
               <div class="setting-label">Audio Normalization</div>
-              <div class="setting-description">Set the same volume level for all songs</div>
+              <div class="setting-description">
+                Set the same volume level for all songs
+              </div>
             </div>
             <ion-toggle [checked]="true"></ion-toggle>
           </div>
@@ -121,103 +127,101 @@ import { IonicModule } from '@ionic/angular';
       </div>
     </ion-content>
   `,
-  styles: [`
-    ion-toolbar {
-      padding: 16px 0;
-    }
-
-    .page-title {
-      font-size: 24px;
-      font-weight: 700;
-      padding: 0 16px;
-    }
-
-    .settings-content {
-      padding: 16px 0;
-    }
-
-    .section {
-      margin-bottom: 32px;
-      padding: 0 16px;
-    }
-
-    .section-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--spotify-text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 16px;
-    }
-
-    .setting-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 0;
-      border-bottom: 1px solid var(--spotify-gray-light);
-      cursor: pointer;
-      transition: opacity 0.2s ease;
-
-      &:last-child {
-        border-bottom: none;
+  styles: [
+    `
+      .page-title {
+        font-size: 24px;
+        font-weight: 700;
+        padding: 0 16px;
       }
 
-      &:active {
-        opacity: 0.7;
+      .settings-content {
+        padding: 16px 0;
       }
 
-      ion-icon {
+      .section {
+        margin-bottom: 32px;
+        padding: 0 16px;
+      }
+
+      .section-title {
+        font-size: 13px;
+        font-weight: 600;
         color: var(--spotify-text-secondary);
-        font-size: 20px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 16px;
       }
-    }
 
-    .setting-info {
-      flex: 1;
-      min-width: 0;
-    }
+      .setting-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--spotify-gray-light);
+        cursor: pointer;
+        transition: opacity 0.2s ease;
 
-    .setting-label {
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--spotify-text);
-      margin-bottom: 4px;
-    }
+        &:last-child {
+          border-bottom: none;
+        }
 
-    .setting-description {
-      font-size: 13px;
-      color: var(--spotify-text-secondary);
-    }
+        &:active {
+          opacity: 0.7;
+        }
 
-    ion-toggle {
-      --background: var(--spotify-gray-lighter);
-      --background-checked: var(--spotify-green);
-      --handle-background: var(--spotify-text);
-      --handle-background-checked: var(--spotify-text);
-    }
-
-    .logout-button {
-      width: 100%;
-      padding: 16px;
-      background: transparent;
-      border: 2px solid var(--spotify-text);
-      border-radius: 24px;
-      color: var(--spotify-text);
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-
-      &:active {
-        transform: scale(0.98);
-        opacity: 0.8;
+        ion-icon {
+          color: var(--spotify-text-secondary);
+          font-size: 20px;
+        }
       }
-    }
 
-    .spacer {
-      height: 80px;
-    }
-  `]
+      .setting-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .setting-label {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--spotify-text);
+        margin-bottom: 4px;
+      }
+
+      .setting-description {
+        font-size: 13px;
+        color: var(--spotify-text-secondary);
+      }
+
+      ion-toggle {
+        --background: var(--spotify-gray-lighter);
+        --background-checked: var(--spotify-green);
+        --handle-background: var(--spotify-text);
+        --handle-background-checked: var(--spotify-text);
+      }
+
+      .logout-button {
+        width: 100%;
+        padding: 16px;
+        background: transparent;
+        border: 2px solid var(--spotify-text);
+        border-radius: 24px;
+        color: var(--spotify-text);
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:active {
+          transform: scale(0.98);
+          opacity: 0.8;
+        }
+      }
+
+      .spacer {
+        height: 80px;
+      }
+    `,
+  ],
 })
 export class SettingsPage {}

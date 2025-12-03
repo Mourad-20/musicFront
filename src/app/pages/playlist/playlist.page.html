@@ -1,0 +1,58 @@
+<ion-header class="transparent-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/library"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button>
+        <app-icon-more-vertical [size]="24"></app-icon-more-vertical>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" *ngIf="playlistService.playlistSelected as p">
+  <div class="playlist-content fade-in">
+    <div [class.shrink]="isShrunk">
+      <div class="header-section">
+        <div class="cover-wrapper">
+          <img
+            src="https://images.pexels.com/photos/167092/pexels-photo-167092.jpeg?auto=compress&cs=tinysrgb&w=300"
+            [alt]="p.name"
+            class="cover"
+          />
+        </div>
+        <h1 class="playlist-name">{{ p.name }}</h1>
+        <div class="playlist-meta">
+          <span class="track-count"> {{ p.queue?.length ?? 0 }} songs </span>
+        </div>
+      </div>
+
+      <div class="actions-section">
+        <button class="play-button" (click)="playPlaylist()">
+          <app-icon-play [size]="24"></app-icon-play>
+        </button>
+        <button class="shuffle-button" (click)="shufflePlaylist()">
+          <app-icon-shuffle [size]="24"></app-icon-shuffle>
+        </button>
+        <button class="action-btn">
+          <app-icon-download [size]="24"></app-icon-download>
+        </button>
+        <button class="action-btn">
+          <app-icon-share [size]="24"></app-icon-share>
+        </button>
+      </div>
+    </div>
+    <div class="track-list" *ngIf="p?.queue">
+      <app-track-item
+        *ngFor="let track of p.queue"
+        [track]="track"
+        [parentPlaylistId]="p.id"
+      >
+      </app-track-item>
+    </div>
+
+    <div class="spacer"></div>
+  </div>
+</ion-content>
+<app-mini-player [tabs]="false"></app-mini-player>

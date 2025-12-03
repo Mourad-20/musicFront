@@ -1,0 +1,41 @@
+//ion-toolbar {
+// padding: 16px 0;
+//}
+.icon-text-wrapper {
+  display: inline-flex;
+  align-items: center; /* aligne verticalement icône et texte */
+  gap: 8px; /* espace entre l'icône et le texte */
+  padding: 0 16px;
+}
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  padding: 0 16px;
+}
+.section-icon {
+  font-size: 28px;
+  color: #1db954;
+}
+//.home-content {
+//padding: 16px 0;
+//}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--spotify-text);
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.track-list {
+  padding: 0;
+}
+
+.spacer {
+  height: 80px;
+}

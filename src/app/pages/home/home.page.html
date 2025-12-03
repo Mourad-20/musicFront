@@ -1,0 +1,50 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title class="page-title">Home</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="home-content fade-in">
+    <section class="section">
+      <span class="icon-text-wrapper">
+        <app-icon-play [size]="24"></app-icon-play>
+        <span>Recently Played</span>
+      </span>
+      <div class="scrollable-horizontal">
+        <app-track-item *ngFor="let track of recentTracks" [track]="track">
+        </app-track-item>
+      </div>
+    </section>
+
+    <section class="section">
+      <span class="icon-text-wrapper">
+        <app-icon-music [size]="24"></app-icon-music>
+        <span>Playlists</span>
+      </span>
+      <div class="scrollable-horizontal">
+        <app-playlist-card
+          *ngFor="let playlist of playlists"
+          [playlist]="playlist"
+        >
+        </app-playlist-card>
+      </div>
+    </section>
+
+    <section class="section">
+      <span class="icon-text-wrapper">
+        <app-icon-top [size]="24"></app-icon-top>
+        <span>Your Top Mix</span>
+      </span>
+      <div class="track-list">
+        <app-playlist-card
+          *ngFor="let queueList of queueLists"
+          [playlist]="queueList"
+        >
+        </app-playlist-card>
+      </div>
+    </section>
+
+    <div class="spacer"></div>
+  </div>
+</ion-content>

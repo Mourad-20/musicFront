@@ -7,7 +7,15 @@ export interface Track {
   coverUrl: string;
   isFavorite?: boolean;
 }
-
+export interface Track1 {
+  id: string;
+  title: string;
+  artist: string;
+  album: string;
+  duration: number;
+  coverUrl: string;
+  isFavorite?: boolean;
+}
 export interface Playlist {
   id: string;
   name: string;
