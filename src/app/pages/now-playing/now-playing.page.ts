@@ -169,18 +169,17 @@ export class NowPlayingPage implements OnInit, OnDestroy {
       this.nextPage();
     }
   }
-  playTrack(): void {
-    if (this.isCurrentTrack()) {
+  async playTrack(track: Track, fromQue: boolean = false) {
+    const current = await firstValueFrom(
+      this.musicService.playerState$.pipe(map((state) => state.currentTrack))
+    );
+    if (current?.url == track.url) {
       this.musicService.togglePlay();
     } else {
-      if (this.parentPlaylistId == -1) {
+      if (!fromQue) {
         this.musicService.setPlaylistQeue([]);
-      } else {
-        this.musicService.setPlaylistQeue(
-          this.playlistService.playlistSelected.queue
-        );
       }
-      this.musicService.playTrack(this.track);
+      this.musicService.playTrack(track);
     }
   }
 }

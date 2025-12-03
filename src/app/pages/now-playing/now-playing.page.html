@@ -1,0 +1,153 @@
+<ion-header class="transparent-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/library"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button>
+        <app-icon-more-vertical [size]="24"></app-icon-more-vertical>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content
+  [fullscreen]="true"
+  *ngIf="musicService.playerState$ | async as playerState"
+>
+  <div class="now-playing-content fade-in">
+    <div class="cover-section">
+      <div class="cover-wrapper pulse">
+        <img
+          [src]="getimgUrl(playerState?.currentTrack!.info)"
+          [alt]="playerState?.currentTrack!.title"
+          class="cover"
+        />
+      </div>
+    </div>
+
+    <div class="info-section">
+      <div class="track-info">
+        <div class="scroll-container">
+          <h1 class="track-title">{{ playerState?.currentTrack!.title }}</h1>
+        </div>
+      </div>
+      <button class="heart-btn" (click)="toggleFavorite()">
+        <app-icon-heart [size]="18" [filled]="isFavorite()"></app-icon-heart>
+      </button>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-bar-container" (click)="onProgressClick($event)">
+        <div class="progress-bar-bg">
+          <div
+            class="progress-bar-fill"
+            [style.width.%]="progress$ | async"
+          ></div>
+          <div
+            class="progress-bar-thumb"
+            [style.left.%]="progress$ | async"
+          ></div>
+        </div>
+      </div>
+      <div class="time-labels">
+        <span class="time-current">
+          {{ formatTime(playerState?.currentTime ?? 0)}}</span
+        >
+        <span class="time-duration"
+          >{{ formatTime(playerState?.duration ?? 0) }}</span
+        >
+      </div>
+    </div>
+
+    <div class="controls-section">
+      <div class="secondary-controls">
+        <button class="control-btn">
+          <app-icon-shuffle [size]="18"></app-icon-shuffle>
+        </button>
+      </div>
+
+      <div class="main-controls">
+        <button class="control-btn" (click)="previous()">
+          <app-icon-previous [size]="18"></app-icon-previous>
+        </button>
+
+        <button class="control-btn primary" (click)="togglePlay()">
+          <app-icon-pause *ngIf="isPlaying()" [size]="22"></app-icon-pause>
+          <app-icon-play *ngIf="!isPlaying()" [size]="22"></app-icon-play>
+        </button>
+
+        <button class="control-btn" (click)="next()">
+          <app-icon-next [size]="18"></app-icon-next>
+        </button>
+      </div>
+
+      <div class="secondary-controls">
+        <button class="control-btn">
+          <app-icon-repeat [size]="18"></app-icon-repeat>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="swiper-section">
+    <div
+      class="swiper-pagination-top"
+      *ngIf="playerState.playlist.length>0"
+    ></div>
+
+    <swiper-container #swiperContainerRef init="false">
+      <swiper-slide>
+        <div class="slide-content playlist-preview">
+          <h2 class="playlist-title">Up Next</h2>
+          <div class="playlist-items" (scroll)="onScroll($event)">
+            <div
+              class="playlist-item"
+              *ngFor="let track of playerState.playlistSugg"
+            >
+              <img
+                [src]="getimgUrl(track.info)"
+                alt="Track"
+                class="playlist-thumb"
+              />
+              <div class="playlist-info">
+                <p class="playlist-track-title">{{ track.title }}</p>
+                <p class="playlist-track-artist">
+                  {{ musicService.extractdurationString(track.info) }}
+                </p>
+              </div>
+            </div>
+            <!-- Loading indicator -->
+            <div class="loading-more" *ngIf="isLoadingMore">
+              <ion-spinner name="bubbles"></ion-spinner>
+              <p>Loading more...</p>
+            </div>
+          </div>
+        </div>
+      </swiper-slide>
+
+      <swiper-slide *ngIf="playerState.playlist.length>0">
+        <div class="slide-content playlist-preview">
+          <h2 class="playlist-title">Queue</h2>
+          <div class="playlist-items">
+            <div
+              class="playlist-item"
+              *ngFor="let track of playerState.playlist"
+            >
+              <img
+                [src]="getimgUrl(track.info)"
+                alt="Track"
+                class="playlist-thumb"
+              />
+              <div class="playlist-info">
+                <p class="playlist-track-title">{{ track.title }}</p>
+                <p class="playlist-track-artist">
+                  {{ musicService.extractdurationString(track.info) }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </swiper-slide>
+    </swiper-container>
+  </div>
+</ion-content>

@@ -1,105 +1,80 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
-import { MusicService } from '../../services/music.service';
-import { Playlist, Track } from '../../models/track.model';
-import { PlaylistCardComponent } from '../../components/playlist-card/playlist-card.component';
-import { TrackItemComponent } from '../../components/track-item/track-item.component';
+import { Component, OnInit } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
+import { MusicService } from "../../services/music.service";
+import { Playlist, Track1 } from "../../models/track.model";
+import { PlaylistCardComponent } from "../../components/playlist-card/playlist-card.component";
+import { TrackItemComponent } from "../../components/track-item/track-item.component";
+import { TrackItemHomeComponent } from "../../components/track-item/track-item-style-home.component";
+import { IconMusicComponent } from "../../components/icons/icon-music.component";
+import { IconPlayComponent } from "../../components/icons/icon-play.component";
+import { IconTopComponent } from "../../components/icons/icons.components";
 
+import { TrackService } from "../../services/track.service";
+import { PlaylistService } from "../../services/playlist.service";
+import { Track, playlistObj, TrackInfo } from "../../interfaces/app.interfaces";
 @Component({
-  selector: 'app-home',
+  selector: "app-home",
   standalone: true,
-  imports: [CommonModule, IonicModule, PlaylistCardComponent, TrackItemComponent],
-  template: `
-    <ion-header>
-      <ion-toolbar>
-        <ion-title class="page-title">Good Evening</ion-title>
-      </ion-toolbar>
-    </ion-header>
+  imports: [
+    CommonModule,
+    IonicModule,
 
-    <ion-content [fullscreen]="true">
-      <div class="home-content fade-in">
-        <section class="section">
-          <h2 class="section-title">Recently Played</h2>
-          <div class="scrollable-horizontal">
-            <app-playlist-card
-              *ngFor="let playlist of recentPlaylists"
-              [playlist]="playlist">
-            </app-playlist-card>
-          </div>
-        </section>
-
-        <section class="section">
-          <h2 class="section-title">Your Top Mix</h2>
-          <div class="scrollable-horizontal">
-            <app-playlist-card
-              *ngFor="let playlist of topMix"
-              [playlist]="playlist">
-            </app-playlist-card>
-          </div>
-        </section>
-
-        <section class="section">
-          <h2 class="section-title">Recommended for You</h2>
-          <div class="track-list">
-            <app-track-item
-              *ngFor="let track of recommendedTracks"
-              [track]="track">
-            </app-track-item>
-          </div>
-        </section>
-
-        <div class="spacer"></div>
-      </div>
-    </ion-content>
-  `,
-  styles: [`
-    ion-toolbar {
-      padding: 16px 0;
-    }
-
-    .page-title {
-      font-size: 24px;
-      font-weight: 700;
-      padding: 0 16px;
-    }
-
-    .home-content {
-      padding: 16px 0;
-    }
-
-    .section {
-      margin-bottom: 32px;
-    }
-
-    .section-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--spotify-text);
-      padding: 0 16px;
-      margin-bottom: 16px;
-    }
-
-    .track-list {
-      padding: 0;
-    }
-
-    .spacer {
-      height: 80px;
-    }
-  `]
+    PlaylistCardComponent,
+    //TrackItemComponent,
+    //TrackItemComponent2,
+    TrackItemHomeComponent,
+    IconMusicComponent,
+    IconPlayComponent,
+    IconTopComponent,
+  ],
+  templateUrl: "./home.page.html",
+  styleUrls: ["./home.page.scss"],
 })
 export class HomePage implements OnInit {
   recentPlaylists: Playlist[] = [];
   topMix: Playlist[] = [];
   recommendedTracks: Track[] = [];
 
-  constructor(private musicService: MusicService) {}
-
+  recentTracks: Track[] = [];
+  playlists: playlistObj[] = [];
+  queueLists: playlistObj[] = [];
+  constructor(
+    private musicService: MusicService,
+    private trackService: TrackService,
+    private playlistService: PlaylistService
+  ) {}
+  private mockTracks: Track1[] = [
+    {
+      id: "1",
+      title: "Blinding Lights",
+      artist: "The Weeknd",
+      album: "After Hours",
+      duration: 200,
+      coverUrl:
+        "https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=400",
+    },
+    {
+      id: "1",
+      title: "Blinding Lights",
+      artist: "The Weeknd",
+      album: "After Hours",
+      duration: 200,
+      coverUrl:
+        "https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=400",
+    },
+  ];
   ngOnInit() {
-    const allPlaylists = this.musicService.getPlaylists();
-    this.recentPlaylists = allPlaylists.slice(0, 3);
-    this.topMix = allPlaylists.slice(3, 6);
-    this.recommendedTracks = this.musicService.getTracks().slice(0, 5);
+    this.loadData();
+    //const allPlaylists = this.musicService.getPlaylists();
+    //this.recentPlaylists = allPlaylists.slice(0, 3);
+    //this.topMix = allPlaylists.slice(3, 6);
+    // this.recommendedTracks = this.musicService.getTracks().slice(0, 5);
+  }
+  loadData() {
+    this.recentTracks = this.trackService.getRecentTracks();
+    //this.playlists = this.playlistService.playlists;
+    this.playlists = Array(5).fill(this.playlistService.playlists).flat();
+    this.queueLists = this.playlistService.queuelistVMs;
   }
 }

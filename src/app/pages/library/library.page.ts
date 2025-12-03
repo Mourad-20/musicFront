@@ -1,134 +1,82 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
-import { MusicService } from '../../services/music.service';
-import { Playlist } from '../../models/track.model';
-import { PlaylistCardComponent } from '../../components/playlist-card/playlist-card.component';
-import { IconLibraryComponent } from '../../components/icons/icons.components';
-
+import { Component, OnInit } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
+import { MusicService } from "../../services/music.service";
+import { Playlist } from "../../models/track.model";
+import { playlistObj, Track } from "../../interfaces/app.interfaces";
+import { PlaylistCardComponent } from "../../components/playlist-card/playlist-card.component";
+import { IconLibraryComponent } from "../../components/icons/icons.components";
+import { TrackService } from "../../services/track.service";
+import { TrackItemComponent } from "../../components/track-item/track-item.component";
+import { TrackItemHomeComponent } from "../../components/track-item/track-item-style-home.component";
+import { PlaylistService } from "../../services/playlist.service";
 @Component({
-  selector: 'app-library',
+  selector: "app-library",
   standalone: true,
-  imports: [CommonModule, IonicModule, PlaylistCardComponent, IconLibraryComponent],
-  template: `
-    <ion-header>
-      <ion-toolbar>
-        <ion-title class="page-title">
-          <app-icon-library [size]="28"></app-icon-library>
-          <span>Your Library</span>
-        </ion-title>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content [fullscreen]="true">
-      <div class="library-content fade-in">
-        <div class="filter-chips">
-          <div class="chip" [class.active]="selectedFilter === 'all'" (click)="selectFilter('all')">
-            All
-          </div>
-          <div class="chip" [class.active]="selectedFilter === 'playlists'" (click)="selectFilter('playlists')">
-            Playlists
-          </div>
-          <div class="chip" [class.active]="selectedFilter === 'artists'" (click)="selectFilter('artists')">
-            Artists
-          </div>
-          <div class="chip" [class.active]="selectedFilter === 'albums'" (click)="selectFilter('albums')">
-            Albums
-          </div>
-        </div>
-
-        <div class="library-grid">
-          <app-playlist-card
-            *ngFor="let playlist of playlists"
-            [playlist]="playlist">
-          </app-playlist-card>
-        </div>
-
-        <div class="spacer"></div>
-      </div>
-    </ion-content>
-  `,
-  styles: [`
-    ion-toolbar {
-      padding: 16px 0;
-    }
-
-    .page-title {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 24px;
-      font-weight: 700;
-      padding: 0 16px;
-    }
-
-    .library-content {
-      padding: 16px;
-    }
-
-    .filter-chips {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 24px;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-
-      &::-webkit-scrollbar {
-        display: none;
-      }
-    }
-
-    .chip {
-      padding: 8px 16px;
-      background: var(--spotify-gray-light);
-      color: var(--spotify-text);
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.2s ease;
-
-      &.active {
-        background: var(--spotify-green);
-        color: var(--spotify-black);
-      }
-
-      &:active {
-        transform: scale(0.95);
-      }
-    }
-
-    .library-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-
-      @media (min-width: 768px) {
-        grid-template-columns: repeat(3, 1fr);
-      }
-
-      @media (min-width: 1024px) {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    .spacer {
-      height: 80px;
-    }
-  `]
+  imports: [
+    CommonModule,
+    IonicModule,
+    //PlaylistCardComponent,
+    IconLibraryComponent,
+    PlaylistCardComponent,
+    TrackItemComponent,
+    //TrackItemHomeComponent,
+  ],
+  templateUrl: "./library.page.html",
+  styleUrls: ["./library.page.scss"],
 })
 export class LibraryPage implements OnInit {
-  playlists: Playlist[] = [];
-  selectedFilter = 'all';
-
-  constructor(private musicService: MusicService) {}
+  playlists: playlistObj[] = [];
+  historiqueTraks: Track[] = [];
+  selectedFilter = "history";
+  pageHNumber: number = 1;
+  pageSize = 20;
+  constructor(
+    private musicService: MusicService,
+    private trackService: TrackService,
+    private playlistService: PlaylistService
+  ) {}
 
   ngOnInit() {
-    this.playlists = this.musicService.getPlaylists();
+    debugger;
+    this.historiqueTraks = this.trackService.Historieplaylist;
+    this.playlists = this.playlistService.playlists;
   }
 
   selectFilter(filter: string): void {
     this.selectedFilter = filter;
+  }
+  nextPage(event: any) {
+    this.pageHNumber = this.pageHNumber + 1;
+    /* if (this.inputsearch.trim().length >= 3) {
+      this.cloudService
+        .SearchMorceaux(this.inputsearch, 0, this.pageNumber, this.pageSize)
+        .subscribe((res: any) => {
+          this.listTrack = [...this.listTrack, ...res["morceauVMs"]];
+          this.filtre("", this.listTrack);
+          if (res["morceauVMs"].length === 0) {
+            event.target.disabled = true;
+          }
+          /*  for(let a of this.g.articlesOrg){
+								  a.PathImage = this.g.baseUrl + '/api/Article/showImageArticle?identifiant=' + a.Identifiant;
+                } */
+    /*event.target.complete();
+        });
+    } else {*/
+
+    this.musicService
+      .gethistory(this.pageHNumber, this.pageSize)
+      .subscribe((res: any) => {
+        this.historiqueTraks = [...this.historiqueTraks, ...res["morceauVMs"]];
+        //this.filtre("", this.listTrack);
+        /*  for(let a of this.g.articlesOrg){
+								  a.PathImage = this.g.baseUrl + '/api/Article/showImageArticle?identifiant=' + a.Identifiant;
+                } */
+        if (res["morceauVMs"].length === 0) {
+          event.target.disabled = true;
+        }
+        event.target.complete();
+      });
+    /* }*/
   }
 }

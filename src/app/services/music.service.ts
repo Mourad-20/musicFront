@@ -1,206 +1,264 @@
-import { Injectable, signal } from '@angular/core';
-import { Track, Playlist, Artist } from '../models/track.model';
+import { Injectable, signal } from "@angular/core";
+import { BehaviorSubject, Observable } from "rxjs";
+import { firstValueFrom } from "rxjs";
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from "@angular/common/http";
+import { environment } from "../../environments/environment";
+//import { Track, Playlist, Artist } from "../models/track.model";
+import {
+  PlayerState,
+  Track,
+  playlistObj,
+  TrackInfo,
+} from "../interfaces/app.interfaces";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class MusicService {
+  private headers = new HttpHeaders({ "Content-Type": "application/json" });
   currentTrack = signal<Track | null>(null);
+  PlaylistSelected = signal<playlistObj | null>(null);
   isPlaying = signal<boolean>(false);
   currentTime = signal<number>(0);
   favorites = signal<Set<string>>(new Set());
+  private audio: HTMLAudioElement;
+  private playerState = new BehaviorSubject<PlayerState>({
+    currentTrack: null,
+    isPlaying: false,
+    currentTime: 0,
+    duration: 0,
+    playlist: [],
+    playlistSugg: [],
+    currentIndex: -1,
+    isLoading: false,
+  });
 
-  private mockTracks: Track[] = [
-    {
-      id: '1',
-      title: 'Blinding Lights',
-      artist: 'The Weeknd',
-      album: 'After Hours',
-      duration: 200,
-      coverUrl: 'https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=400'
-    },
-    {
-      id: '2',
-      title: 'Save Your Tears',
-      artist: 'The Weeknd',
-      album: 'After Hours',
-      duration: 215,
-      coverUrl: 'https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg?auto=compress&cs=tinysrgb&w=400'
-    },
-    {
-      id: '3',
-      title: 'Levitating',
-      artist: 'Dua Lipa',
-      album: 'Future Nostalgia',
-      duration: 203,
-      coverUrl: 'https://images.pexels.com/photos/1389429/pexels-photo-1389429.jpeg?auto=compress&cs=tinysrgb&w=400'
-    },
-    {
-      id: '4',
-      title: 'Peaches',
-      artist: 'Justin Bieber',
-      album: 'Justice',
-      duration: 198,
-      coverUrl: 'https://images.pexels.com/photos/1092730/pexels-photo-1092730.jpeg?auto=compress&cs=tinysrgb&w=400'
-    },
-    {
-      id: '5',
-      title: 'Good 4 U',
-      artist: 'Olivia Rodrigo',
-      album: 'SOUR',
-      duration: 178,
-      coverUrl: 'https://images.pexels.com/photos/1144176/pexels-photo-1144176.jpeg?auto=compress&cs=tinysrgb&w=400'
-    },
-    {
-      id: '6',
-      title: 'Stay',
-      artist: 'The Kid LAROI, Justin Bieber',
-      album: 'Stay',
-      duration: 141,
-      coverUrl: 'https://images.pexels.com/photos/1616403/pexels-photo-1616403.jpeg?auto=compress&cs=tinysrgb&w=400'
-    },
-    {
-      id: '7',
-      title: 'Heat Waves',
-      artist: 'Glass Animals',
-      album: 'Dreamland',
-      duration: 239,
-      coverUrl: 'https://images.pexels.com/photos/1122462/pexels-photo-1122462.jpeg?auto=compress&cs=tinysrgb&w=400'
-    },
-    {
-      id: '8',
-      title: 'drivers license',
-      artist: 'Olivia Rodrigo',
-      album: 'SOUR',
-      duration: 242,
-      coverUrl: 'https://images.pexels.com/photos/1032110/pexels-photo-1032110.jpeg?auto=compress&cs=tinysrgb&w=400'
+  public playerState$: Observable<PlayerState> =
+    this.playerState.asObservable();
+  constructor(private http: HttpClient) {
+    this.audio = new Audio();
+    this.setupAudioListeners();
+  }
+  private setupAudioListeners() {
+    this.audio.addEventListener("timeupdate", () => {
+      this.updateState({ currentTime: this.audio.currentTime });
+    });
+
+    this.audio.addEventListener("durationchange", () => {
+      this.updateState({ duration: this.audio.duration });
+    });
+
+    this.audio.addEventListener("ended", () => {
+      this.next();
+    });
+
+    this.audio.addEventListener("play", () => {
+      this.updateState({ isPlaying: true });
+    });
+
+    this.audio.addEventListener("pause", () => {
+      this.updateState({ isPlaying: false });
+    });
+  }
+  private updateState(partial: Partial<PlayerState>) {
+    this.playerState.next({ ...this.playerState.value, ...partial });
+  }
+  setPlaylistSugg(listMorceu: Track[]) {
+    this.updateState({ playlistSugg: listMorceu });
+  }
+  setPlaylistQeue(listMorceu: Track[]) {
+    this.updateState({ playlist: listMorceu });
+  }
+  next() {
+    const { playlist, playlistSugg } = this.playerState.value;
+    var next = this.getnext(
+      playlist !== null && playlist.length > 0 ? playlist : playlistSugg
+    );
+    this.loadTrack(next);
+  }
+  getnext(list: Track[]) {
+    const { currentTrack } = this.playerState.value;
+    var index = list.findIndex((track) => track.url === currentTrack?.url);
+    //index=index !== -1 ? index : 0;
+    const lastIndex = list.length - 1;
+    return index !== lastIndex
+      ? currentTrack?.url || "" != list[index + 1].url
+        ? list[index + 1]
+        : list[index + 1 !== lastIndex ? index + 2 : index + 1]
+      : list[0];
+  }
+  seek(time: number) {
+    this.audio.currentTime = time;
+  }
+  previous() {
+    const { playlist, currentIndex } = this.playerState.value;
+    if (currentIndex > 0) {
+      const prevIndex = currentIndex - 1;
+      this.loadTrack(playlist[prevIndex]);
     }
-  ];
-
-  private mockPlaylists: Playlist[] = [
-    {
-      id: 'p1',
-      name: 'Today\'s Top Hits',
-      description: 'The hottest tracks right now',
-      coverUrl: 'https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=400',
-      owner: 'Spotify',
-      trackCount: 50
-    },
-    {
-      id: 'p2',
-      name: 'RapCaviar',
-      description: 'New music from Drake, Travis Scott and more',
-      coverUrl: 'https://images.pexels.com/photos/1916824/pexels-photo-1916824.jpeg?auto=compress&cs=tinysrgb&w=400',
-      owner: 'Spotify',
-      trackCount: 50
-    },
-    {
-      id: 'p3',
-      name: 'All Out 2020s',
-      description: 'The biggest hits of the 2020s',
-      coverUrl: 'https://images.pexels.com/photos/1267697/pexels-photo-1267697.jpeg?auto=compress&cs=tinysrgb&w=400',
-      owner: 'Spotify',
-      trackCount: 150
-    },
-    {
-      id: 'p4',
-      name: 'Rock Classics',
-      description: 'Rock legends & epic songs',
-      coverUrl: 'https://images.pexels.com/photos/1327430/pexels-photo-1327430.jpeg?auto=compress&cs=tinysrgb&w=400',
-      owner: 'Spotify',
-      trackCount: 100
-    },
-    {
-      id: 'p5',
-      name: 'Chill Vibes',
-      description: 'Lay back and enjoy the vibes',
-      coverUrl: 'https://images.pexels.com/photos/1125850/pexels-photo-1125850.jpeg?auto=compress&cs=tinysrgb&w=400',
-      owner: 'Spotify',
-      trackCount: 80
-    },
-    {
-      id: 'p6',
-      name: 'Mood Booster',
-      description: 'Get happy with today\'s hits',
-      coverUrl: 'https://images.pexels.com/photos/1540406/pexels-photo-1540406.jpeg?auto=compress&cs=tinysrgb&w=400',
-      owner: 'Spotify',
-      trackCount: 75
+  }
+  extractdurationString(info: string | any): string {
+    if ((info ?? "") === "") {
+      return "00:00";
     }
-  ];
-
-  private mockArtists: Artist[] = [
-    {
-      id: 'a1',
-      name: 'The Weeknd',
-      imageUrl: 'https://images.pexels.com/photos/1699161/pexels-photo-1699161.jpeg?auto=compress&cs=tinysrgb&w=400',
-      followers: 85000000
-    },
-    {
-      id: 'a2',
-      name: 'Dua Lipa',
-      imageUrl: 'https://images.pexels.com/photos/1070945/pexels-photo-1070945.jpeg?auto=compress&cs=tinysrgb&w=400',
-      followers: 65000000
-    },
-    {
-      id: 'a3',
-      name: 'Justin Bieber',
-      imageUrl: 'https://images.pexels.com/photos/1086723/pexels-photo-1086723.jpeg?auto=compress&cs=tinysrgb&w=400',
-      followers: 75000000
+    var infojson = JSON.parse(info);
+    if (infojson.duration) {
+      let duration = infojson.duration;
+      if (duration.startsWith("00:")) {
+        duration = duration.substring(3);
+      }
+      return duration;
     }
-  ];
 
+    return "00:00";
+  }
+  async loadTrack(track: Track) {
+    var sugg = await this.getSugg(track);
+    this.updateState({
+      isLoading: true,
+      currentTrack: track,
+      playlistSugg: sugg,
+      duration: 0,
+      currentTime: 0,
+    });
+
+    const videoId = this.extractVideoId(track.url);
+    const apiUrl = `${environment.serverBase}/GetMorceau?input=${videoId}&fromsource=false`;
+
+    try {
+      debugger;
+      const response: string =
+        (await this.http.get(apiUrl, { responseType: "text" }).toPromise()) ??
+        "";
+      const data = JSON.parse(response);
+      this.audio.src = data.Url || "";
+      this.updateState({ isLoading: false });
+      this.play();
+    } catch (error) {
+      console.error("Error loading track:", error);
+      this.updateState({ isLoading: false });
+    }
+  }
+  private extractVideoId(url: string): string {
+    const match = url.match(/[?&]v=([^&]+)/);
+    return match ? match[1] : "";
+  }
+  play() {
+    debugger;
+    if (this.audio.src) {
+      this.audio.play().catch((err) => console.error("Play error:", err));
+    }
+  }
+
+  pause() {
+    this.audio.pause();
+  }
+
+  togglePlay() {
+    this.isPlaying.update((playing) => !playing);
+    if (this.playerState.value.isPlaying) {
+      this.pause();
+    } else {
+      this.play();
+    }
+  }
   getTracks(): Track[] {
-    return this.mockTracks;
+    return [];
   }
 
-  getPlaylists(): Playlist[] {
-    return this.mockPlaylists;
+  getPlaylists(): playlistObj[] {
+    return [];
   }
 
-  getArtists(): Artist[] {
-    return this.mockArtists;
+  getArtists(): object[] {
+    return [];
   }
 
   getTrackById(id: string): Track | undefined {
-    return this.mockTracks.find(t => t.id === id);
+    return;
   }
 
-  getPlaylistById(id: string): Playlist | undefined {
-    const playlist = this.mockPlaylists.find(p => p.id === id);
+  getPlaylistById1(id: number): Track[] | undefined {
+    this.getMorceauPyliste(id).subscribe((res: any) => {
+      var traks: Track[] = res["morceauVMs"];
+      return traks;
+      //this.start(this.listTrackPlylist?.[0], false, true);
+      //this.pageService.queueTrack = res["morceauVMs"];
+      //this.pageService.idplylist = item.id;
+    });
+
+    /*const playlist = this.mockPlaylists.find((p) => p.id === id);
     if (playlist) {
       return {
         ...playlist,
-        tracks: this.mockTracks.slice(0, 8)
+        tracks: this.mockTracks.slice(0, 8),
       };
-    }
+    }*/
     return undefined;
   }
-
-  playTrack(track: Track): void {
+  async getPlaylistById(id: number): Promise<Track[]> {
+    const res: any = await this.getMorceauPyliste(id).toPromise();
+    return res["morceauVMs"];
+  }
+  getMorceauPyliste(id: number) {
+    let options = { headers: this.headers, withCredentials: true };
+    let data = {};
+    //return this.http.get(  environment.serverBase+  'api/morceau/GetlistAudio', data);
+    return this.http.get(
+      environment.serverBase + "/GetMorceauPlaylist?id=" + id,
+      data
+    );
+  }
+  async playTrack(track: Track): Promise<void> {
     this.currentTrack.set(track);
     this.isPlaying.set(true);
-  }
 
-  togglePlay(): void {
-    this.isPlaying.update(playing => !playing);
+    this.loadTrack(track);
   }
-
+  async getSugg(track: Track): Promise<Track[]> {
+    /*this.afterPlay(track).subscribe((res: any) => {
+      this.loadingsug = false;
+      this.playlistsug = res["morceauDMs"];
+      this.listtoply = res["morceauDMs"];
+      this.plysugKey = res["plysugKey"];
+    });*/
+    const res: any = await firstValueFrom(this.afterPlay(track));
+    return res["morceauDMs"];
+  }
+  async GetsugPlay(text: string) {
+    let data = {};
+    var get = this.http.get(
+      environment.serverBase + "/GetsugPlay?input=" + text + "&nextKey=",
+      data
+    );
+    const res: any = await firstValueFrom(get);
+    return res["morceauDMs"];
+  }
+  afterPlay(track: Track) {
+    let options = { headers: this.headers, withCredentials: true };
+    return this.http.post(environment.serverBase + "/afterPlay", track);
+  }
   nextTrack(): void {
     const current = this.currentTrack();
     if (!current) return;
 
-    const currentIndex = this.mockTracks.findIndex(t => t.id === current.id);
-    const nextIndex = (currentIndex + 1) % this.mockTracks.length;
-    this.playTrack(this.mockTracks[nextIndex]);
+    //const currentIndex = this.mockTracks.findIndex((t) => t.id === current.id);
+    //const nextIndex = (currentIndex + 1) % this.mockTracks.length;
+    //this.playTrack(this.mockTracks[nextIndex]);
   }
 
   previousTrack(): void {
     const current = this.currentTrack();
     if (!current) return;
 
-    const currentIndex = this.mockTracks.findIndex(t => t.id === current.id);
-    const prevIndex = currentIndex === 0 ? this.mockTracks.length - 1 : currentIndex - 1;
-    this.playTrack(this.mockTracks[prevIndex]);
+    //const currentIndex = this.mockTracks.findIndex((t) => t.id === current.id);
+    //const prevIndex =
+    // currentIndex === 0 ? this.mockTracks.length - 1 : currentIndex - 1;
+    //this.playTrack(this.mockTracks[prevIndex]);
   }
 
   toggleFavorite(trackId: string): void {
@@ -219,12 +277,55 @@ export class MusicService {
 
   getFavoriteTracks(): Track[] {
     const favIds = this.favorites();
-    return this.mockTracks.filter(t => favIds.has(t.id));
+    // return this.mockTracks.filter((t) => favIds.has(t.id));
+    return [];
   }
 
-  formatDuration(seconds: number): string {
+  formatDuration1(seconds: number): string {
+    debugger;
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  }
+  formatTime(seconds: number): string {
+    const date = new Date(0);
+    date.setSeconds(seconds);
+
+    // Si le temps est inférieur à une heure, renvoie le format MM:SS
+    if (this.audio.duration < 3600) {
+      return date.toISOString().substr(14, 5); // Extrait le format MM:SS
+    }
+
+    // Sinon, renvoie le format HH:MM:SS
+    return date.toISOString().substr(11, 8); // Extrait le format HH:MM:SS
+  }
+  gethistory(pageNumber: number, pageSize: number) {
+    return this.SearchMorceaux("", 0, pageNumber, pageSize);
+    //let options = {	headers: this.headers,withCredentials: true	};
+    //let data = {};
+    //return this.http.get(  environment.serverBase+  'api/morceau/GetlistAudio', data);
+    //return this.http.get(  environment.serverBase +'/GetHistory?pageNumber='+pageNumber+'&pageSize='+pageSize, data);
+  }
+  SearchMorceaux(
+    input: string,
+    idplylist: number,
+    pageNumber: number,
+    pageSize: number
+  ) {
+    let options = { headers: this.headers, withCredentials: true };
+    let data = {};
+    //return this.http.get(  environment.serverBase+  'api/morceau/GetlistAudio', data);
+    return this.http.get(
+      environment.serverBase +
+        "/SearchMorceaux?input=" +
+        input +
+        "&idplylist=" +
+        idplylist +
+        "&pageNumber=" +
+        pageNumber +
+        "&pageSize=" +
+        pageSize,
+      data
+    );
   }
 }

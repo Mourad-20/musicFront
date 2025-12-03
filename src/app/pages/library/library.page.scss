@@ -1,0 +1,73 @@
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 24px;
+  font-weight: 700;
+  padding: 0 16px;
+}
+
+.library-content {
+  height: 100%;
+}
+.filter-chips {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  margin-top: 5px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.chip {
+  padding: 8px 16px;
+  background: var(--spotify-gray-light);
+  color: var(--spotify-text);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+
+  &.active {
+    background: var(--spotify-green);
+    color: var(--spotify-black);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.library-grid {
+  gap: 16px;
+  overflow-y: auto;
+  max-height: calc(100vh - 220px);
+}
+
+/* Playlists → 2 columns */
+.playlists-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* History → 1 column */
+.history-grid {
+  grid-template-columns: 1fr !important;
+}
+.spacer {
+  height: 80px;
+}
